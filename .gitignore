@@ -1,0 +1,5 @@
+*.asv
+PlanarScan_HornAntenna/
+PlanarScan_Waveguide/
+SphericalScan_HornAntenna/
+measurements_backup/
