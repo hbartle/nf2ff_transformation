@@ -7,7 +7,7 @@ clc
 
 disp('************************************************')
 disp('          Near-To-Far-Field Conversion')
-disp('          Planar Scanner')
+disp('          Cylindrical Scanner')
 disp('************************************************')
 
 addpath('misc_functions')
@@ -16,9 +16,9 @@ addpath('transformation_functions')
 %% Load Data
 disp('Load Data...')
 f = 5e9;
-% setup = '../measurement/PlanarScan_Waveguide/';
-setup = '../measurement/PlanarScan_HornAntenna/';
-% setup = '../measurement/PlanarScan_PatchAntenna/';
+
+setup = '../measurement/CylindricalScan_HornAntenna/';
+% setup = '../measurement/CylindricalScan_PatchAntenna/';
 
 data_ff = readtable([setup 'Farfield/farfield (f=' num2str(f*1e-9) ') [1].txt']);
 
@@ -36,8 +36,8 @@ data_ff.Properties.VariableNames = {'theta' 'phi' 'Eabs' 'Ethetaabs' 'Ephiabs'};
 data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
  
 % Select measurements to process
-data_nf = data_nf([16,18]);
-scan_names = scan_names([16,18]);
+% data_nf = data_nf([16,18]);
+% scan_names = scan_names([16,18]);
 
 disp('Done!')
 %% NF2FF transformation
@@ -52,8 +52,8 @@ phi_range= (0:delta_phi:180-delta_phi)*pi/180;
 fft_padding = 4;
 window = 'tukey';
 
-% data_nf2ff = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,window),data_nf,'Uniformoutput',false);
-data_nf2ff = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,window),data_nf,'Uniformoutput',false);
+% data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,phi_range,theta_range,fft_padding,window),data_nf,'Uniformoutput',false);
+data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,phi_range,theta_range,window),data_nf,'Uniformoutput',false);
 
 disp('Done!')
 %% Plots
