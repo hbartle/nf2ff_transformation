@@ -9,6 +9,10 @@ disp('************************************************')
 disp('          Near-To-Far-Field Conversion')
 disp('          Planar Scanner')
 disp('************************************************')
+
+addpath('misc_functions')
+addpath('plot_functions')
+addpath('transformation_functions')
 %% Load Data
 disp('Load Data...')
 f = 5e9;
@@ -32,8 +36,9 @@ data_ff.Properties.VariableNames = {'theta' 'phi' 'Eabs' 'Ethetaabs' 'Ephiabs'};
 data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
  
 % Select measurements to process
-data_nf = data_nf(end);
-scan_names = scan_names(end);
+% data_nf = data_nf(8);
+% scan_names = scan_names(8);
+
 disp('Done!')
 %% NF2FF transformation
 disp('NF2FF Transformation...')
