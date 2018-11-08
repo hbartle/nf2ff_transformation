@@ -1,4 +1,4 @@
-function [data_nf2ff] = nf2ffTransformation_fft(data_nf,f,padding,phi_range,theta_range)
+function [data_nf2ff] = nf2ffTransformation_fft(data_nf,f,phi_range,theta_range,padding,window)
 
 % Create Results Table
 p = length(phi_range);
@@ -51,14 +51,25 @@ Ez_nf = reshape(data_nf.E(:,3),number_of_samples_x,number_of_samples_y);
 
 
 % Sampling Window Function
-% L = length(fx);
-% h = hamming(L);
-% H = h*h'/L;
+L = length(Ex_nf);
+
+switch window
+    case 'none'
+        h = ones(L);
+    case 'tukey'
+        h = tukeywin(L);
+    case 'hamming'
+        h = hamming(L);
+    otherwise
+        disp('No valid window function selected')
+end
+
+H = h*h'/L;
 
 
 % Retrieve Plane Wave Modes through FFT
-fx=ifftshift(ifft2(Ex_nf,number_of_samples_x_padded,number_of_samples_y_padded));
-fy=ifftshift(ifft2(Ey_nf,number_of_samples_x_padded,number_of_samples_y_padded));
+fx=ifftshift(ifft2(Ex_nf.*H,number_of_samples_x_padded,number_of_samples_y_padded));
+fy=ifftshift(ifft2(Ey_nf.*H,number_of_samples_x_padded,number_of_samples_y_padded));
 fz=-(fx.*kx_grid+fy.*ky_grid)./kz_grid;
 
 
