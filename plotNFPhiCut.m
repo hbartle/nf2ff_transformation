@@ -1,4 +1,4 @@
-function [] = plotNFPhiCut(data_nf2ff,phi_cut,normalized)
+function [] = plotNFPhiCut(data_nf2ff,phi_cut,normalized,logarithmic)
 
 
 % Find values in cutting plane
@@ -12,8 +12,12 @@ if normalized == true
 else
     nf2ff_cut =  data_nf2ff.Eabs(i);
 end
-plot(nf2ff_cut_angles*180/pi,nf2ff_cut)
 
-
+if logarithmic == true
+    plot(nf2ff_cut_angles*180/pi,20*log10(nf2ff_cut))
+elseif logarithmic == false
+    plot(nf2ff_cut_angles*180/pi,nf2ff_cut)
+end
+hold on
 end
 
