@@ -1,4 +1,4 @@
-function [data_nf2ff] = nf2ffTransformation_manual(data_nf,f,phi_range,theta_range,window)
+function [data_nf2ff] = nf2ff_planar_manual(data_nf,f,phi_range,theta_range,window)
 
 
 % Create Results Table

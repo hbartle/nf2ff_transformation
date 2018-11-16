@@ -36,8 +36,8 @@ data_ff.Properties.VariableNames = {'theta' 'phi' 'Eabs' 'Ethetaabs' 'Ephiabs'};
 data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
  
 % Select measurements to process
-data_nf = data_nf([16,18]);
-scan_names = scan_names([16,18]);
+% data_nf = data_nf([16]);
+% scan_names = scan_names([16]);
 
 disp('Done!')
 %% NF2FF transformation
@@ -50,7 +50,7 @@ phi_range= (0:delta_phi:180-delta_phi)*pi/180;
 
 % NF2FF Algorithm Parameters
 fft_padding = 4;
-window = 'tukey';
+window = 'none';
 
 % data_nf2ff = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,window),data_nf,'Uniformoutput',false);
 data_nf2ff = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,window),data_nf,'Uniformoutput',false);
@@ -60,46 +60,62 @@ disp('Done!')
 disp('Plotting...')
 close all
 
+fontsize = 14;
+
 normalized = true;
-logarithmic = true;
+logarithmic = false;
 
 % Phi=0 cut
 figure('name','Far-Field Cuts,Phi=0°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 plotFFPhiCut(data_ff,0,normalized,logarithmic)
 cellfun(@(data_nf2ff) plotNFPhiCut(data_nf2ff,0,normalized,logarithmic),data_nf2ff)
 grid on
 xlabel('Theta [°]')
-ylim([-50 0])
-ylabel('E-Field Pattern [-]')
+if logarithmic == true
+    ylim([-50 0])
+    ylabel('E-Field Pattern [dB]')
+else 
+    ylim([0 1])
+    ylabel('E-Field Pattern [-]')
+end
 title('Far-Field Cut Phi=0°')
-legend(['Far-Field',scan_names])
-
+legend(['Far-Field',scan_names])  ;
 
 figure('name','Far-Field Error,Phi=0°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 cellfun(@(data_nf2ff) plotDiffPhiCut(data_nf2ff,data_ff,0,theta_range),data_nf2ff)
 grid on
 xlabel('Theta [°]')
 ylabel('Difference to Reference Far-Field [dB]')
 title('Difference to Reference Far-Field, Phi=0°')
-legend(scan_names)
+legend(scan_names);
+
 
 % Phi=90 cut
 figure('name','Far-Field Cuts,Phi=90°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 plotFFPhiCut(data_ff,pi/2,normalized,logarithmic)
 cellfun(@(data_nf2ff) plotNFPhiCut(data_nf2ff,pi/2,normalized,logarithmic),data_nf2ff)
 grid on
 xlabel('Theta [°]')
-ylim([-50 0])
-ylabel('E-Field Pattern [-]')
+if logarithmic == true
+    ylim([-50 0])
+    ylabel('E-Field Pattern [dB]')
+else 
+    ylim([0 1])
+    ylabel('E-Field Pattern [-]')
+end
 title('Far-Field Cut Phi=90°')
 legend(['Far-Field',scan_names])
 
 
 figure('name','Far-Field Error,Phi=90°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 cellfun(@(data_nf2ff) plotDiffPhiCut(data_nf2ff,data_ff,pi/2,theta_range),data_nf2ff)
 grid on
 xlabel('Theta [°]')

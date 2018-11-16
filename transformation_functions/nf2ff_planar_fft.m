@@ -1,4 +1,4 @@
-function [data_nf2ff] = nf2ffTransformation_fft(data_nf,f,phi_range,theta_range,padding,window)
+function [data_nf2ff] = nf2ff_planar_fft(data_nf,f,phi_range,theta_range,padding,window)
 
 % Create Results Table
 p = length(phi_range);
