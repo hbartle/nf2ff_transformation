@@ -18,6 +18,7 @@ disp('Load Data...')
 f = 5e9;
 
 setup = '../measurement/CylindricalScan_HornAntenna/';
+% setup = '../measurement/CylindricalScan_HornAntenna_Rotated/';
 % setup = '../measurement/CylindricalScan_PatchAntenna/';
 
 data_ff = readtable([setup 'Farfield/farfield (f=' num2str(f*1e-9) ') [1].txt']);
@@ -37,20 +38,21 @@ data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
 data_nf = cellfun(@(data_nf) rotateCylindricalNFData(data_nf,'z'),data_nf,'UniformOutput',false);
 
 % Select measurements to process
-% data_nf = data_nf([2]);
-% scan_names = scan_names([2]);
+% data_nf = data_nf([1,5]);
+% scan_names = scan_names([1,5]);
 
 disp('Done!')
 %% NF2FF transformation
 disp('NF2FF Transformation...')
 delta_theta=1;
 theta_range = (0:delta_theta:180-delta_theta)*pi/180;
-
+delta_phi = 1;
+phi_range = (0:delta_phi:360-delta_phi)*pi/180;
 % NF2FF Algorithm Parameters
-window = 'none';
+window = 'tukey';
 
-data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,window),data_nf,'Uniformoutput',false);
-% data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,window),data_nf,'Uniformoutput',false);
+% data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,window),data_nf,'Uniformoutput',false);
+data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,phi_range,window),data_nf,'Uniformoutput',false);
 
 disp('Done!')
 %% Plots
@@ -58,7 +60,7 @@ disp('Plotting...')
 close all
 
 normalized = true;
-logarithmic = false;
+logarithmic = true;
 
 % Phi=0 cut
 figure('name','Far-Field Cuts,Phi=0°','numbertitle','off',...
@@ -107,14 +109,14 @@ ylabel('E-Field Pattern [-]')
 title('Far-Field Cut Theta=90°')
 legend(['Far-Field',scan_names])
  
-
-figure('name','Far-Field Error,Phi=90°','numbertitle','off',...
+ 
+figure('name','Far-Field Error,Theta=90°','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1]);
 cellfun(@(data_nf2ff) plotDiffThetaCutCylindrical(data_nf2ff,data_ff,pi/2),data_nf2ff)
 grid on
-xlabel('Theta [°]')
+xlabel('Phi [°]')
 ylabel('Difference to Reference Far-Field [dB]')
-title('Difference to Reference Far-Field, Phi=90°')
+title('Difference to Reference Far-Field, Theta=90°')
 legend(scan_names)
 
 

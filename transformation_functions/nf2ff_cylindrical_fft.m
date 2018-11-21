@@ -44,8 +44,8 @@ switch window
         w_phi = ones(Lphi,1);
         w_z = ones(Lz,1);
     case 'tukey'
-        w_phi = tukeywin(Lphi);
-        w_z = tukeywin(Lz);
+        w_phi = tukeywin(Lphi,1);
+        w_z = tukeywin(Lz,1);
     case 'hamming'
         w_phi = hamming(Lphi);
         w_z = hamming(Lz);
@@ -54,14 +54,14 @@ switch window
         
 end
 
-W = w_phi*w_z'/(Lphi*Lz);
+W = w_phi*w_z';
 
 % Spectral analysis
-% b = 1./(h2.*delta_kz).*fftshift(fft(ifftshift(ifft(Ez,[],1)),[],2));
-% a = 1./(dh.*delta_kz).*(b.*h.*delta_kz - fftshift(fft(ifftshift(ifft(Ephi,[],1)),[],2)));
+b = 1./(h2.*delta_kz).*fftshift(fft(ifftshift(ifft(Ez.*W,[],1),1),[],2),2);
+a = 1./(dh.*delta_kz).*(b.*h.*delta_kz - fftshift(fft(ifftshift(ifft(Ephi.*W,[],1),1),[],2),2));
 
-b = 1./(h2.*delta_kz).*fftshift(fft(ifft(Ez.*W,[],1),[],2));
-a = 1./(dh.*delta_kz).*(b.*h.*delta_kz - fftshift(fft(ifft(Ephi.*W,[],1),[],2)));
+% b = 1./(h2.*delta_kz).*fftshift(fft(ifft(Ez.*W,[],1),[],2));
+% a = 1./(dh.*delta_kz).*(b.*h.*delta_kz - fftshift(fft(ifft(Ephi.*W,[],1),[],2)));
 
 
 % Spherical Far-Field Wavenumber Vector
@@ -75,15 +75,18 @@ b_ff=interp2(n_grid',k_grid',b',n_grid_spherical',kz_grid_spherical','spline')';
 % Far-Field Amplitude Factor
 r = 100;
 C = -2*k0*exp(-1j*k0*r)/r;
+alpha_spherical = sqrt(k0^2-kz_grid_spherical.^2);
+
 % Compute Far-Field
-% Etheta = 1j*C*sqrt(k0^2-kz_grid_spherical.^2).*fftshift(fft(1j.^n_grid_spherical.*b_ff));
-% Ephi = C*sqrt(k0^2-kz_grid_spherical.^2).*fftshift(fft(1j.^n_grid_spherical.*a_ff));
-% Eabs = abs(sqrt(Etheta.^2 + Ephi.^2));
-
-
-Etheta = 1j*C*sqrt(k0^2-kz_grid_spherical.^2).*ifft(1j.^n_grid_spherical.*b_ff);
-Ephi = C*sqrt(k0^2-kz_grid_spherical.^2).*ifft(1j.^n_grid_spherical.*a_ff);
+% 
+Etheta = (fft(1j*C*alpha_spherical.*1j.^n_grid_spherical.*b_ff));
+Ephi = (fft(C*alpha_spherical.*1j.^n_grid_spherical.*a_ff));
 Eabs = abs(sqrt(Etheta.^2 + Ephi.^2));
+
+% w = tukeywin(size(b_ff,1),0.3);
+% Etheta = 1j*C*alpha_spherical.*(fft(1j.^n_grid_spherical.*b_ff,[],1));
+% Ephi = C*alpha_spherical.*(fft(1j.^n_grid_spherical.*a_ff,[],1));
+% Eabs = abs(sqrt(Etheta.^2 + Ephi.^2));
 
 % Create Results Table
 p = N;
