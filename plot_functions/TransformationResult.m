@@ -1,4 +1,6 @@
-function [] = TransformationResult(data_ff,data_nf2ff,scanner_case)
+function [] = TransformationResult(data_ff,data_nf2ff,scan_name,scanner_case,coordinate_system)
+close all
+
 
 switch scanner_case
     case 'planar'
@@ -60,9 +62,10 @@ switch scanner_case
 
     case 'spherical'
         
+
         
         
-    
+end
         
 
 %% Normalized Field Difference
@@ -71,43 +74,91 @@ Z_nf2ff_norm = Z_nf2ff/max(max(Z_nf2ff));
 
 Z_diff = 10*log10(abs(Z_ff_norm - Z_nf2ff_norm));
 
-
-%% Plot
+%% Plot in Cartesian Coordinates
 fontsize = 14;
 close all
 
-figure('name','Tranformation Result - Far-Field','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1],...
-        'DefaultAxesFontSize',fontsize);
-s = surf(X_ff*180/pi,Y_ff*180/pi,Z_ff);
-s.EdgeColor = 'flat';
-rotate3d on
-xlabel('Theta [°]')
-ylabel('Phi [°]')
-zlabel('Eabs [V/m]')
-colorbar
+if strcmp(coordinate_system,'cartesian')
 
-figure('name','Tranformation Result - Transformed Near-Field','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1],...
-        'DefaultAxesFontSize',fontsize);
-s=surf(X_nf2ff,Y_nf2ff,Z_nf2ff);
-s.EdgeColor = 'flat';
-rotate3d on
-xlabel('Theta [°]')
-ylabel('Phi [°]')
-zlabel('Eabs [V/m]')
-colorbar
 
-figure('name','Tranformation Result - Error','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1],...
-        'DefaultAxesFontSize',fontsize);
-s=surf(X_nf2ff,Y_nf2ff,Z_diff);
-s.EdgeColor = 'flat';
-rotate3d on
-xlabel('Theta [°]')
-ylabel('Phi [°]')
-zlabel('Difference [dB]')
-colorbar
+    figure('name','Tranformation Result - Far-Field','numbertitle','off',...
+            'units','normalized','outerposition',[0 0 1 1],...
+            'DefaultAxesFontSize',fontsize);
+    s = surf(X_ff*180/pi,Y_ff*180/pi,Z_ff);
+    s.EdgeColor = 'flat';
+    rotate3d on
+    xlabel('Theta [°]')
+    ylabel('Phi [°]')
+    zlabel('Eabs [V/m]')
+    colorbar
+    title('Far-Field');
+
+    figure('name','Tranformation Result - Transformed Near-Field','numbertitle','off',...
+            'units','normalized','outerposition',[0 0 1 1],...
+            'DefaultAxesFontSize',fontsize);
+    s=surf(X_nf2ff*180/pi,Y_nf2ff*180/pi,Z_nf2ff);
+    s.EdgeColor = 'flat';
+    rotate3d on
+    xlabel('Theta [°]')
+    ylabel('Phi [°]')
+    zlabel('Eabs [V/m]')
+    colorbar
+    title(scan_name);
+
+    figure('name','Tranformation Result - Error','numbertitle','off',...
+            'units','normalized','outerposition',[0 0 1 1],...
+            'DefaultAxesFontSize',fontsize);
+    s=surf(X_nf2ff*180/pi,Y_nf2ff*180/pi,Z_diff);
+    s.EdgeColor = 'flat';
+    rotate3d on
+    xlabel('Theta [°]')
+    ylabel('Phi [°]')
+    zlabel('Difference [dB]')
+    colorbar
+    title(scan_name);
+
+
+%% Plot in Spherical Coordinates
+elseif strcmp(coordinate_system,'polar')
+    
+    switch scanner_case
+        case 'planar'   
+            figure('name','Tranformation Result','numbertitle','off',...
+            'units','normalized','outerposition',[0 0 1 1],...
+            'DefaultAxesFontSize',fontsize);
+            subplot(1,2,1)
+            sphere3d(Z_ff,0,2*pi,0,pi/2,min(min(Z_ff)),5,'surf','spline');
+            title('Far-Field')
+            rotate3d on
+
+            subplot(1,2,2)
+            sphere3d(Z_nf2ff,0,2*pi,0,pi/2,min(min(Z_nf2ff)),5,'surf','spline');
+            title('Transformed Near-Field')
+            rotate3d on
+
+        case 'cylindrical'
+
+            % duplicate value at 0/360° to make nice plot
+            Z_nf2ff = [Z_nf2ff; Z_nf2ff(1,:)];
+            Z_ff = [Z_ff; Z_ff(1,:)];
+            
+            figure('name','Tranformation Result','numbertitle','off',...
+            'units','normalized','outerposition',[0 0 1 1],...
+            'DefaultAxesFontSize',fontsize);
+            subplot(1,2,1)
+            sphere3d(Z_ff,-pi,pi,-pi/2,pi/2,min(min(Z_ff)),5,'surf','spline');
+            title('Far-Field')
+            rotate3d on
+
+            subplot(1,2,2)
+            sphere3d(Z_nf2ff,-pi,pi,-pi/2,pi/2,min(min(Z_nf2ff)),5,'surf','spline');
+            title('Transformed Near-Field')
+            rotate3d on
+
+    end
+
+    
+end
 
 
 end

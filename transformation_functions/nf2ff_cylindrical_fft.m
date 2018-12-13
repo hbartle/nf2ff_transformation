@@ -1,4 +1,4 @@
-function [data_nf2ff] = nf2ff_cylindrical_fft(data_nf,f,theta_range,window)
+function [data_nf2ff] = nf2ff_cylindrical_fft(data_nf,f,theta_range,phi_range,window)
 
 % Wave Number
 lambda = physconst('LightSpeed')/f;
@@ -82,6 +82,10 @@ alpha_spherical = sqrt(k0^2-kz_grid_spherical.^2);
 Etheta = (fft(1j*C*alpha_spherical.*1j.^n_grid_spherical.*b_ff));
 Ephi = (fft(C*alpha_spherical.*1j.^n_grid_spherical.*a_ff));
 Eabs = abs(sqrt(Etheta.^2 + Ephi.^2));
+
+
+
+
 
 % w = tukeywin(size(b_ff,1),0.3);
 % Etheta = 1j*C*alpha_spherical.*(fft(1j.^n_grid_spherical.*b_ff,[],1));

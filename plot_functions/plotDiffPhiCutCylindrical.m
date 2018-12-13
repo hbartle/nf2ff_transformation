@@ -4,8 +4,17 @@ function [] = plotDiffPhiCutCylindrical(data_nf2ff,data_ff,phi,theta_range)
 % Normalized Far-Field cut
 i = find(data_ff.phi==phi & ismember(data_ff.theta,theta_range));
 m = find(data_ff.phi==phi+pi & ismember(data_ff.theta,theta_range));
-ff_cut_angles = [-fliplr(data_ff.theta(m)') data_ff.theta(i)']; 
-ff_cut = [fliplr(data_ff.Eabs(m)')'; data_ff.Eabs(i)]/max(data_ff.Eabs);
+ff_cut_angles = [-fliplr(data_ff.theta(m)') data_ff.theta(i)'];
+maxValue1 = (max(data_ff.Eabs(i)));
+maxValue2 = (max(data_ff.Eabs(m)));
+
+if maxValue1>maxValue2
+    maxValue =maxValue1;
+else
+    maxValue=maxValue2;
+end
+
+ff_cut = [fliplr(data_ff.Eabs(m)')'; data_ff.Eabs(i)]/maxValue;
 
 
 % Normalized NF2FF cut
