@@ -1,4 +1,4 @@
-% 
+    % 
 % NF2FF Conversion using Planar Scanner
 %
 clear 
@@ -50,10 +50,16 @@ phi_range= (0:delta_phi:180-delta_phi)*pi/180;
 
 % NF2FF Algorithm Parameters
 fft_padding = 4;
-window = 'none';
 
-% data_nf2ff = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,window),data_nf,'Uniformoutput',false);
-data_nf2ff = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,window),data_nf,'Uniformoutput',false);
+data_nf2ff_rect = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,'none'),data_nf,'Uniformoutput',false);
+data_nf2ff_hamming = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,'hamming'),data_nf,'Uniformoutput',false);
+data_nf2ff_tukey = cellfun(@(data_nf) nf2ff_planar_fft(data_nf,f,phi_range,theta_range,fft_padding,'tukey'),data_nf,'Uniformoutput',false);
+
+% data_nf2ff_rect = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,'none'),data_nf,'Uniformoutput',false);
+% data_nf2ff_hamming = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,'hamming'),data_nf,'Uniformoutput',false);
+% data_nf2ff_tukey = cellfun(@(data_nf) nf2ff_planar_manual(data_nf,f,phi_range,theta_range,'tukey'),data_nf,'Uniformoutput',false);
+
+data_nf2ff = data_nf2ff_rect;
 
 disp('Done!')
 %% Plots
@@ -126,7 +132,46 @@ legend(scan_names)
 
 disp('Done!')
 
+%% Accumulated Pattern Error Analysis
+close all
+fontsize = 14;
 
+% Calculate APE
+error_rect = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_rect);
+error_hamming = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming);
+error_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
 
+% Increasing Area
+samples = [4,5,10,16,21,23,25,26];
+figure('name','Accumulated Pattern Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(100*error_rect(samples),'--*')
+hold on
+plot(100*error_hamming(samples),'--*')
+plot(100*error_tukey(samples),'--*')
+grid on
+ylabel('Accumulated Pattern Error [%]')
+title({'Accumulated Pattern Error','Varying Measurement Area, \lambda/2 spacing'})
+xtickangle(45)
+xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing
+samples = [10,14,19,22];
+figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(100*error_rect(samples),'--*')
+hold on
+plot(100*error_hamming(samples),'--*')
+plot(100*error_tukey(samples),'--*')
+grid on
+ylabel('Accumulated Pattern Error [%]')
+title({'Accumulated Pattern Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2'})
+xtickangle(45)
+xticks(1:4)
+xticklabels({'30x30','35x35','40x40','45x45'})
+legend('Rectangular','Hamming','Tukey')
 
 
