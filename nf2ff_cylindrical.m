@@ -38,8 +38,8 @@ data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
 data_nf = cellfun(@(data_nf) rotateCylindricalNFData(data_nf,'z'),data_nf,'UniformOutput',false);
 
 % Select measurements to process
-% data_nf = data_nf([1,5]);
-% scan_names = scan_names([1,5]);
+data_nf = data_nf([6,7,8]);
+scan_names = scan_names([6,7,8]);
 
 disp('Done!')
 %% NF2FF transformation
@@ -134,7 +134,7 @@ error_rect = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'cylindrical
 %error_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
 
 % Increasing Area
-samples=[5,6,7,8,9];
+samples=1:length(error_rect);
 figure('name','Accumulated Pattern Error, Varying Area','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
@@ -166,7 +166,22 @@ xtickangle(45)
 %xticklabels({'30x30','35x35','40x40','45x45'})
 legend('Rectangular','Hamming','Tukey')
 
-
+% Varying Phi Resolution
+samples = 1:length(error_rect);
+figure('name','Accumulated Pattern Error, Varying Phi Resolution','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(100*error_rect(samples),'--*')
+hold on
+%plot(100*error_hamming(samples),'--*')
+%plot(100*error_tukey(samples),'--*')
+grid on
+ylabel('Accumulated Pattern Error [%]')
+title({'Accumulated Pattern Error','Varying Phi Resolution'})
+xtickangle(45)
+%xticks(1:4)
+%xticklabels({'30x30','35x35','40x40','45x45'})
+legend('Rectangular','Hamming','Tukey')
 
 
 

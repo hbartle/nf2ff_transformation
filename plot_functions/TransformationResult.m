@@ -1,5 +1,5 @@
 function [] = TransformationResult(data_ff,data_nf2ff,scan_name,scanner_case,coordinate_system)
-close all
+% close all
 
 
 switch scanner_case
@@ -76,7 +76,7 @@ Z_diff = 10*log10(abs(Z_ff_norm - Z_nf2ff_norm));
 
 %% Plot in Cartesian Coordinates
 fontsize = 14;
-close all
+% close all
 
 if strcmp(coordinate_system,'cartesian')
 
