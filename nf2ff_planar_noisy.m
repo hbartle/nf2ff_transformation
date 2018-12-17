@@ -9,7 +9,7 @@ clc
 
 disp('************************************************')
 disp('          Near-To-Far-Field Conversion')
-disp('          Planar Scanner with normal distributed Position Noise')
+disp('          Planar Scanner with normal distributed position Noise')
 disp('************************************************')
 
 addpath('misc_functions')
@@ -19,7 +19,7 @@ addpath('transformation_functions')
 disp('Load Data...')
 f = 5e9;
 
-setup = '../measurement/PlanarScan_HornAntenna_Variance/';
+setup = '../measurement/PlanarScan_HornAntenna_Noise/';
 
 
 data_ff = readtable([setup 'Farfield/farfield (f=' num2str(f*1e-9) ') [1].txt']);
@@ -147,24 +147,51 @@ disp('Done!')
 close all
 fontsize = 14;
 
-% Calculate APE
-error_rect = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_rect);
-error_hamming = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming);
-error_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
+sigma = [0,1,2,3];
 
-% Increasing Area
-samples = 1:length(error_rect);
+% Calculate APE
+ape_rect = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_rect);
+ape_rect_mean = [ape_rect(1),...
+                 mean(ape_rect(2:11)),...
+                 mean(ape_rect(12:21)),...
+                 mean(ape_rect(22:end))];
+err_rect = [0,...
+            range(ape_rect(2:11))/2,...
+            range(ape_rect(12:21))/2,...
+            range(ape_rect(22:end))/2];
+
+ape_hamming = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming);
+ape_hamming_mean = [ape_hamming(1),...
+                    mean(ape_hamming(2:11)),...
+                    mean(ape_hamming(12:21)),...
+                    mean(ape_hamming(22:end))];
+err_hamming = [0,...
+               range(ape_hamming(2:11))/2,...
+               range(ape_hamming(12:21))/2,...
+               range(ape_hamming(22:end))/2];
+
+ape_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
+ape_tukey_mean = [ape_tukey(1),...
+                  mean(ape_tukey(2:11)),...
+                  mean(ape_tukey(12:21)),...
+                  mean(ape_tukey(22:end))];
+err_tukey = [0,...
+             range(ape_tukey(2:11))/2,...
+             range(ape_tukey(12:21))/2,...
+             range(ape_tukey(22:end))/2];
+
+
+% Increasing Variance
 figure('name','Accumulated Pattern Error, Varying Area','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
-plot(100*error_rect(samples),'--*')
+errorbar(sigma,100*ape_rect_mean,100*err_rect,'--*')
 hold on
-% plot(100*error_hamming(samples),'--*')
-% plot(100*error_tukey(samples),'--*')
+errorbar(sigma,100*ape_hamming_mean,100*err_rect,'--*')
+errorbar(sigma,100*ape_tukey_mean,100*err_rect,'--*')
 grid on
+xlabel('Standard Deviation of Probe Position [mm]');
 ylabel('Accumulated Pattern Error [%]')
-title({'Accumulated Pattern Error','Varying Measurement Area, \lambda/2 spacing'})
-% xtickangle(45)
-% xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+title({'Accumulated Pattern Error','\lambda/2 spacing'})
 legend('Rectangular','Hamming','Tukey')
 
