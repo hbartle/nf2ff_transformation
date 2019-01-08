@@ -36,8 +36,8 @@ data_ff.Properties.VariableNames = {'theta' 'phi' 'Eabs' 'Ethetaabs' 'Ephiabs'};
 data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
  
 % Select measurements to process
-% data_nf = data_nf([16]);
-% scan_names = scan_names([16]);
+% data_nf = data_nf([10]);
+% scan_names = scan_names([10]);
 
 disp('Done!')
 %% NF2FF transformation
@@ -69,7 +69,7 @@ close all
 fontsize = 14;
 
 normalized = true;
-logarithmic = false;
+logarithmic = true;
 
 % Phi=0 cut
 figure('name','Far-Field Cuts,Phi=0°','numbertitle','off',...
@@ -174,4 +174,81 @@ xticks(1:4)
 xticklabels({'30x30','35x35','40x40','45x45'})
 legend('Rectangular','Hamming','Tukey')
 
+%% HPBW Error Analysis
+close all
+fontsize = 14;
+
+% Calculate HPBW error
+[rect.hpbw_ff,rect.hpbw_nf2ff, rect.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_rect,'UniformOutput',false);
+[hamming.hpbw_ff,hamming.hpbw_nf2ff, hamming.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming,'UniformOutput',false);
+[tukey.hpbw_ff,tukey.hpbw_nf2ff, tukey.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey,'UniformOutput',false);
+
+hpbw_err_rect = cell2mat(rect.hpbw_err);
+hpbw_err_hamming = cell2mat(hamming.hpbw_err);
+hpbw_err_tukey = cell2mat(tukey.hpbw_err);
+
+% Increasing Area / Phi = 0 Cut
+samples = [4,5,10,16,21,23,25,26];
+figure('name','HPBW Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(1,samples),'-*')
+hold on
+plot(hpbw_err_hamming(1,samples),'-*')
+plot(hpbw_err_tukey(1,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Area, \lambda/2 spacing, Phi=0 Cut'})
+xtickangle(45)
+xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+legend('Rectangular','Hamming','Tukey')
+% Increasing Area / Phi = 90 Cut
+samples = [4,5,10,16,21,23,25,26];
+figure('name','HPBW Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(2,samples),'-*')
+hold on
+plot(hpbw_err_hamming(2,samples),'-*')
+plot(hpbw_err_tukey(2,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Area, \lambda/2 spacing, Phi=90 Cut'})
+xtickangle(45)
+xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing Phi=0
+samples = [10,14,19,22];
+figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(1,samples),'-*')
+hold on
+plot(hpbw_err_hamming(1,samples),'-*')
+plot(hpbw_err_tukey(1,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2, Phi=0 Cut'})
+xtickangle(45)
+xticks(1:4)
+xticklabels({'30x30','35x35','40x40','45x45'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing Phi=90
+samples = [10,14,19,22];
+figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(2,samples),'-*')
+hold on
+plot(hpbw_err_hamming(2,samples),'-*')
+plot(hpbw_err_tukey(2,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2, Phi=90 Cut'})
+xtickangle(45)
+xticks(1:4)
+xticklabels({'30x30','35x35','40x40','45x45'})
+legend('Rectangular','Hamming','Tukey')
 

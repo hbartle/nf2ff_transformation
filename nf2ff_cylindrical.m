@@ -38,8 +38,10 @@ data_nf = cellfun(@rearrangeTables,data_nf,'UniformOutput',false);
 data_nf = cellfun(@(data_nf) rotateCylindricalNFData(data_nf,'z'),data_nf,'UniformOutput',false);
 
 % Select measurements to process
-data_nf = data_nf([6,7,8]);
-scan_names = scan_names([6,7,8]);
+% data_nf = data_nf([10,6,7]);
+% scan_names = scan_names([10,6,7]);
+% data_nf = data_nf([8,9,10,11,12]);
+% scan_names = scan_names([8,9,10,11,12]);
 
 disp('Done!')
 %% NF2FF transformation
@@ -48,16 +50,21 @@ delta_theta=1;
 theta_range = (0:delta_theta:180-delta_theta)*pi/180;
 delta_phi = 1;
 phi_range = (0:delta_phi:360-delta_phi)*pi/180;
-% NF2FF Algorithm Parameters
-window = 'none';
 
-% data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,phi_range,window),data_nf,'Uniformoutput',false);
-data_nf2ff = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,phi_range,window),data_nf,'Uniformoutput',false);
+% data_nf2ff_rect = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,phi_range,'none'),data_nf,'Uniformoutput',false);
+% data_nf2ff_hamming = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,phi_range,'hamming'),data_nf,'Uniformoutput',false);
+% data_nf2ff_tukey = cellfun(@(data_nf) nf2ff_cylindrical_fft(data_nf,f,theta_range,phi_range,'tukey'),data_nf,'Uniformoutput',false);
 
+data_nf2ff_rect = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,phi_range,'none'),data_nf,'Uniformoutput',false);
+data_nf2ff_hamming = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,phi_range,'hamming'),data_nf,'Uniformoutput',false);
+data_nf2ff_tukey = cellfun(@(data_nf) nf2ff_cylindrical_manual(data_nf,f,theta_range,phi_range,'tukey'),data_nf,'Uniformoutput',false);
+
+data_nf2ff = data_nf2ff_rect;
 disp('Done!')
 %% Plots
 disp('Plotting...')
 close all
+fontsize = 14;
 
 normalized = true;
 logarithmic = false;
@@ -65,7 +72,8 @@ logarithmic = false;
 % Phi=0 cut
 phi_cut = 0;
 figure('name','Far-Field Cuts,Phi=0°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 plotFFPhiCut(data_ff,phi_cut,normalized,logarithmic)
 cellfun(@(data_nf2ff) plotNFPhiCutCylindrical(data_nf2ff,phi_cut,normalized,logarithmic),data_nf2ff)
 grid on
@@ -83,7 +91,8 @@ legend(['Far-Field',scan_names])
 
 
 figure('name','Far-Field Error,Phi=0°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 cellfun(@(data_nf2ff) plotDiffPhiCutCylindrical(data_nf2ff,data_ff,phi_cut,theta_range),data_nf2ff)
 grid on
 xlabel('Theta [°]')
@@ -95,7 +104,8 @@ legend(scan_names)
 % Theta=90 cut
 theta_cut = pi/2;
 figure('name','Far-Field Cuts,Theta=90°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 plotFFThetaCut(data_ff,theta_cut,normalized,logarithmic)
 cellfun(@(data_nf2ff) plotNFThetaCutCylindrical(data_nf2ff,theta_cut,normalized,logarithmic),data_nf2ff)
 grid on
@@ -113,7 +123,8 @@ legend(['Far-Field',scan_names])
  
  
 figure('name','Far-Field Error,Theta=90°','numbertitle','off',...
-        'units','normalized','outerposition',[0 0 1 1]);
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
 cellfun(@(data_nf2ff) plotDiffThetaCutCylindrical(data_nf2ff,data_ff,theta_cut),data_nf2ff)
 grid on
 xlabel('Phi [°]')
@@ -130,58 +141,123 @@ fontsize = 14;
 
 % Calculate APE
 error_rect = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'cylindrical'),data_nf2ff);
-%error_hamming = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming);
-%error_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
+error_hamming = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming);
+error_tukey = cellfun(@(data_nf2ff) ErrorAnalysis(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey);
 
 % Increasing Area
-samples=1:length(error_rect);
+samples=[8,9,10,11,12];
+xValues = [30,35,40,45,50];
 figure('name','Accumulated Pattern Error, Varying Area','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
-plot(100*error_rect(samples),'--*')
+plot(xValues,100*error_rect(samples),'--*')
 hold on
-%plot(100*error_hamming(samples),'--*')
-%plot(100*error_tukey(samples),'--*')
+plot(xValues,100*error_hamming(samples),'--*')
+plot(xValues,100*error_tukey(samples),'--*')
 grid on
+xlabel('Number of probes in linear dimension');
 ylabel('Accumulated Pattern Error [%]')
-title({'Accumulated Pattern Error','Varying Measurement Area, \lambda/2 spacing'})
-xtickangle(45)
-%xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+title({'Accumulated Pattern Error','Varying Measurement Area, \lambda/2 spacing,'})
 legend('Rectangular','Hamming','Tukey')
 
 % Varying Spacing
-samples = [4];
+samples = [10,7,6];
 figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
 plot(100*error_rect(samples),'--*')
 hold on
-%plot(100*error_hamming(samples),'--*')
-%plot(100*error_tukey(samples),'--*')
+plot(100*error_hamming(samples),'--*')
+plot(100*error_tukey(samples),'--*')
 grid on
 ylabel('Accumulated Pattern Error [%]')
 title({'Accumulated Pattern Error','Varying Measurement Spacing'})
 xtickangle(45)
-%xticks(1:4)
-%xticklabels({'30x30','35x35','40x40','45x45'})
+xticks(1:3)
+xticklabels({'42x40','42x45','42x50'})
 legend('Rectangular','Hamming','Tukey')
 
-% Varying Phi Resolution
-samples = 1:length(error_rect);
-figure('name','Accumulated Pattern Error, Varying Phi Resolution','numbertitle','off',...
+
+
+
+%% HPBW Error Analysis
+close all
+fontsize = 14;
+
+% Calculate HPBW error
+[~,~, hpbw_err_rect] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_rect,'UniformOutput',false);
+[~,~, hpbw_err_hamming] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_hamming,'UniformOutput',false);
+[~,~, hpbw_err_tukey] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_tukey,'UniformOutput',false);
+
+hpbw_err_rect = cell2mat(hpbw_err_rect);
+hpbw_err_hamming = cell2mat(hpbw_err_hamming);
+hpbw_err_tukey = cell2mat(hpbw_err_tukey);
+
+xValues = [30,35,40,45,50];
+
+% Increasing Area / Phi = 0 Cut
+samples = [8,9,10,11,12];
+figure('name','HPBW Error, Varying Area','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
-plot(100*error_rect(samples),'--*')
+plot(xValues,hpbw_err_rect(1,samples),'-*')
 hold on
-%plot(100*error_hamming(samples),'--*')
-%plot(100*error_tukey(samples),'--*')
+plot(xValues,hpbw_err_hamming(1,samples),'-*')
+plot(xValues,hpbw_err_tukey(1,samples),'-*')
 grid on
-ylabel('Accumulated Pattern Error [%]')
-title({'Accumulated Pattern Error','Varying Phi Resolution'})
-xtickangle(45)
-%xticks(1:4)
-%xticklabels({'30x30','35x35','40x40','45x45'})
+xlabel('Number of probes in linear dimension');
+xticks(xValues)
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Area, \lambda/2 spacing, Phi=0 Cut'})
 legend('Rectangular','Hamming','Tukey')
 
+% Increasing Area / Theta = 90 Cut
+samples = [8,9,10,11,12];
+figure('name','HPBW Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(xValues,hpbw_err_rect(2,samples),'-*')
+hold on
+plot(xValues,hpbw_err_hamming(2,samples),'-*')
+plot(xValues,hpbw_err_tukey(2,samples),'-*')
+grid on
+xlabel('Number of probes in linear dimension');
+xticks(xValues)
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Area, \lambda/2 spacing, Theta=90 Cut'})
+legend('Rectangular','Hamming','Tukey')
 
+% Varying Spacing Phi=0
+samples = [10,7,6];
+figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(1,samples),'-*')
+hold on
+plot(hpbw_err_hamming(1,samples),'-*')
+plot(hpbw_err_tukey(1,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2, Phi=0 Cut'})
+xtickangle(45)
+xticks(1:3)
+xticklabels({'42x40','42x45','42x50'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing Theta=90
+samples = [10,7,6];
+figure('name','Accumulated Pattern Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(hpbw_err_rect(2,samples),'-*')
+hold on
+plot(hpbw_err_hamming(2,samples),'-*')
+plot(hpbw_err_tukey(2,samples),'-*')
+grid on
+ylabel('HPBW Error [Degrees]')
+title({'HPBW Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2, Theta=90 Cut'})
+xtickangle(45)
+xticks(1:3)
+xticklabels({'42x40','42x45','42x50'})
+legend('Rectangular','Hamming','Tukey')
 
