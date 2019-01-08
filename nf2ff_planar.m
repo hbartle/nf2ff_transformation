@@ -179,13 +179,13 @@ close all
 fontsize = 14;
 
 % Calculate HPBW error
-[rect.hpbw_ff,rect.hpbw_nf2ff, rect.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_rect,'UniformOutput',false);
-[hamming.hpbw_ff,hamming.hpbw_nf2ff, hamming.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming,'UniformOutput',false);
-[tukey.hpbw_ff,tukey.hpbw_nf2ff, tukey.hpbw_err] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey,'UniformOutput',false);
+[~,~, hpbw_err_rect] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_rect,'UniformOutput',false);
+[~,~, hpbw_err_hamming] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming,'UniformOutput',false);
+[~,~, hpbw_err_tukey] = cellfun(@(data_nf2ff) HPBWError(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey,'UniformOutput',false);
 
-hpbw_err_rect = cell2mat(rect.hpbw_err);
-hpbw_err_hamming = cell2mat(hamming.hpbw_err);
-hpbw_err_tukey = cell2mat(tukey.hpbw_err);
+hpbw_err_rect = cell2mat(hpbw_err_rect);
+hpbw_err_hamming = cell2mat(hpbw_err_hamming);
+hpbw_err_tukey = cell2mat(hpbw_err_tukey);
 
 % Increasing Area / Phi = 0 Cut
 samples = [4,5,10,16,21,23,25,26];
@@ -251,4 +251,67 @@ xtickangle(45)
 xticks(1:4)
 xticklabels({'30x30','35x35','40x40','45x45'})
 legend('Rectangular','Hamming','Tukey')
+
+%% Side-Lobe Level Error Analysis
+close all
+fontsize = 14;
+
+% Calculate Side-Lobe Level error
+[~,~, sll_err_rect] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'planar'),data_nf2ff_rect,'UniformOutput',false);
+[~,~, sll_err_hamming] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'planar'),data_nf2ff_hamming,'UniformOutput',false);
+[~,~, sll_err_tukey] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'planar'),data_nf2ff_tukey,'UniformOutput',false);
+
+sll_err_rect = cell2mat(sll_err_rect);
+sll_err_hamming = cell2mat(sll_err_hamming);
+sll_err_tukey = cell2mat(sll_err_tukey);
+
+% Increasing Area / Phi = 0 Cut
+samples = [4,5,10,16,21,23,25,26];
+figure('name','Side-Lobe-Level Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(sll_err_rect(samples),'-*')
+hold on
+plot(sll_err_hamming(samples),'-*')
+plot(sll_err_tukey(samples),'-*')
+grid on
+ylabel('SLL Error [dB]')
+title({'Side-Lobe-Level Error','Varying Measurement Area, \lambda/2 spacing'})
+xtickangle(45)
+xticklabels({'20x20','25x25','30x30','35x35','40x40','45x45','50x50','55x55'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing Phi=0
+samples = [10,14,19,22];
+figure('name','Side-Lobe-Level Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(sll_err_rect(samples),'-*')
+hold on
+plot(sll_err_hamming(samples),'-*')
+plot(sll_err_tukey(samples),'-*')
+grid on
+ylabel('SLL Error [dB]')
+title({'Side-Lobe-Level Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2'})
+xtickangle(45)
+xticks(1:4)
+xticklabels({'30x30','35x35','40x40','45x45'})
+legend('Rectangular','Hamming','Tukey')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

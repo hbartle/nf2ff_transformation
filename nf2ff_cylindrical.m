@@ -261,3 +261,58 @@ xticks(1:3)
 xticklabels({'42x40','42x45','42x50'})
 legend('Rectangular','Hamming','Tukey')
 
+%% Side-Lobe Level Error Analysis
+close all
+fontsize = 14;
+
+% Calculate Side-Lobe Level error
+[~,~, sll_err_rect] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_rect,'UniformOutput',false);
+[~,~, sll_err_hamming] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_hamming,'UniformOutput',false);
+[~,~, sll_err_tukey] = cellfun(@(data_nf2ff) SLLError(data_ff,data_nf2ff,'cylindrical'),data_nf2ff_tukey,'UniformOutput',false);
+
+sll_err_rect = cell2mat(sll_err_rect);
+sll_err_hamming = cell2mat(sll_err_hamming);
+sll_err_tukey = cell2mat(sll_err_tukey);
+
+xValues = [30,35,40,45,50];
+
+% Increasing Area / Phi = 0 Cut
+samples = [8,9,10,11,12];
+figure('name','Side-Lobe-Level Error, Varying Area','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(xValues,sll_err_rect(samples),'-*')
+hold on
+plot(xValues,sll_err_hamming(samples),'-*')
+plot(xValues,sll_err_tukey(samples),'-*')
+grid on
+xlabel('Number of probes in linear dimension');
+xticks(xValues)
+ylabel('SLL Error [dB]')
+title({'Side-Lobe-Level Error','Varying Measurement Area, \lambda/2 spacing'})
+legend('Rectangular','Hamming','Tukey')
+
+% Varying Spacing Phi=0
+samples = [10,7,6];
+figure('name','Side-Lobe-Level Error, Varying Spacing','numbertitle','off',...
+        'units','normalized','outerposition',[0 0 1 1],...
+        'DefaultAxesFontSize',fontsize);
+plot(sll_err_rect(samples),'-*')
+hold on
+plot(sll_err_hamming(samples),'-*')
+plot(sll_err_tukey(samples),'-*')
+grid on
+ylabel('SLL Error [Degrees]')
+title({'Side-Lobe-Level Error','Varying Measurement Spacing, 30\lambda/2 x 30\lambda/2'})
+xtickangle(45)
+xticks(1:3)
+xticklabels({'42x40','42x45','42x50'})
+legend('Rectangular','Hamming','Tukey')
+
+
+
+
+
+
+
+
