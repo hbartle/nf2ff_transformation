@@ -247,7 +247,7 @@ hpbw_err_tukey_mean = [hpbw_err_tukey(:,1),...
 
                 
 %Phi = 0 Cut
-figure('name','HPBW Error, Varying Area','numbertitle','off',...
+figure('name','HPBW Error, Varying Standard Deviation','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
 plot(sigma,hpbw_err_rect_mean(1,:),'-*')
@@ -261,13 +261,13 @@ title({'HPBW Error','\lambda/2 spacing, Phi=0 Cut'})
 legend('Rectangular','Hamming','Tukey')
 
 % Phi = 90 Cut
-figure('name','HPBW Error, Varying Area','numbertitle','off',...
+figure('name','HPBW Error, Varying Standard Deviation','numbertitle','off',...
         'units','normalized','outerposition',[0 0 1 1],...
         'DefaultAxesFontSize',fontsize);
-plot(hpbw_err_rect_mean(2,:),'-*')
+plot(sigma,hpbw_err_rect_mean(2,:),'-*')
 hold on
-plot(hpbw_err_hamming_mean(2,:),'-*')
-plot(hpbw_err_tukey_mean(2,:),'-*')
+plot(sigma,hpbw_err_hamming_mean(2,:),'-*')
+plot(sigma,hpbw_err_tukey_mean(2,:),'-*')
 grid on
 xlabel('Standard Deviation of Probe Position [mm]');
 ylabel('HPBW Error [Degrees]')
